@@ -3,7 +3,9 @@ package com.lunatech.example.sietse.StackSearch;
 import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.util.Log;
+import android.view.MenuItem;
 
 public class UserActivity extends Activity {
     @Override
@@ -12,8 +14,13 @@ public class UserActivity extends Activity {
 
         setContentView(R.layout.user_container);
 
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+
         if(savedInstanceState == null) {
-            getFragmentManager().beginTransaction().add(R.id.user_container, new UserListFragment()).commit();
+            getFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.user_container, new UserListFragment())
+                    .commit();
         }
     }
 
@@ -28,5 +35,16 @@ public class UserActivity extends Activity {
         fragmentTransaction.replace(R.id.user_container, detailFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

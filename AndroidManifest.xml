@@ -14,7 +14,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".UserActivity"
-            android:label="All users"/>
+            android:label="All users">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".ImporterActivity"/>
+            </activity>
 
         <provider android:name=".UserProvider"
             android:authorities="com.lunatech.example.StackSearch.UserProvider" />

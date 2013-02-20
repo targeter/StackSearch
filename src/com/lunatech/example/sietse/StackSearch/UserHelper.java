@@ -86,6 +86,7 @@ public class UserHelper extends SQLiteOpenHelper {
             return new User(site, id, displayName, about, reputation);
         } finally {
             cursor.close();
+            db.close();
         }
     }
 
@@ -108,8 +109,10 @@ public class UserHelper extends SQLiteOpenHelper {
             cursor.close();
             return null;
         }
-        db.close();
+
+        Log.wtf("query", "foo");
 
         return cursor;
     }
+
 }

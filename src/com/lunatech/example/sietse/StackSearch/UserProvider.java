@@ -49,7 +49,7 @@ public class UserProvider extends ContentProvider {
                     throw new IllegalArgumentException(
                             "selectionArgs must be provided for the Uri: " + uri);
                 }
-                return searchUsers(selection, projection);
+                return searchUsers(selectionArgs, projection);
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
@@ -80,9 +80,15 @@ public class UserProvider extends ContentProvider {
         throw new UnsupportedOperationException("Can't update Users");
     }
 
-    public Cursor searchUsers(String query, String[] columns) {
+    private Cursor searchUsers(String[] args, String[] columns) {
         final String selection = "displayName LIKE ?";
-        final String[] selectionArgs = new String[]{query + "%"};
+        final String[] selectionArgs;
+        if(args.length > 0) {
+            selectionArgs = new String[]{args[0] + "%"};
+        } else {
+            selectionArgs = new String[]{"%"};
+        }
+
         return helper.query(selection, selectionArgs, columns);
     }
 

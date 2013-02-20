@@ -48,7 +48,7 @@ public class UserHelper extends SQLiteOpenHelper {
                 values.put("displayName", user.displayName);
                 values.put("about", user.about);
                 values.put("reputation", user.reputation);
-                db.insertOrThrow(TABLE_NAME, null, values);
+                db.insertWithOnConflict(TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
             }
             db.setTransactionSuccessful();
 

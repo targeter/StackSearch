@@ -53,10 +53,7 @@ public class UserProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
-
-
     }
-
 
     @Override
     public String getType(Uri uri) {

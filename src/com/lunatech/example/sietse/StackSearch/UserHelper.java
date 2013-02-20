@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
+import com.lunatech.example.sietse.StackSearch.model.StackSite;
 import com.lunatech.example.sietse.StackSearch.model.User;
 
 import java.util.Set;
@@ -62,6 +63,32 @@ public class UserHelper extends SQLiteOpenHelper {
 
     }
 
+    public User findUserByRowid(Long rowid) {
+        final SQLiteDatabase db = getReadableDatabase();
+        final Cursor cursor = db
+                .query(TABLE_NAME, new String[]{"site", "id", "displayName", "about", "reputation"}, "rowid = ?",
+                        new String[]{rowid.toString()}, null, null, null);
+
+        if (cursor == null) {
+            return null;
+        }
+
+        try {
+            if (!cursor.moveToFirst()) {
+                return null;
+            }
+            StackSite site = StackSite.valueOf(cursor.getString(0));
+            Long id = cursor.getLong(1);
+            String displayName = cursor.getString(2);
+            String about = cursor.getString(3);
+            Integer reputation = cursor.getInt(4);
+
+            return new User(site, id, displayName, about, reputation);
+        } finally {
+            cursor.close();
+        }
+    }
+
     public long countUsers() {
         final SQLiteDatabase db = getReadableDatabase();
         final SQLiteStatement stmt = db.compileStatement("SELECT COUNT(*) FROM " + TABLE_NAME + ";");
@@ -72,7 +99,8 @@ public class UserHelper extends SQLiteOpenHelper {
         final SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
         builder.setTables(TABLE_NAME);
 
-        final Cursor cursor = builder.query(getReadableDatabase(), columns, selection, selectionArgs, null, null, "displayName");
+        final SQLiteDatabase db = getReadableDatabase();
+        final Cursor cursor = builder.query(db, columns, selection, selectionArgs, null, null, null);
 
         if (cursor == null) {
             return null;
@@ -80,6 +108,7 @@ public class UserHelper extends SQLiteOpenHelper {
             cursor.close();
             return null;
         }
+        db.close();
 
         return cursor;
     }

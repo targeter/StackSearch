@@ -13,7 +13,7 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".ListViewLoader"
+        <activity android:name=".UserActivity"
             android:label="All users"/>
 
         <provider android:name=".UserProvider"

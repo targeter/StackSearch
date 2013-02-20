@@ -4,4 +4,7 @@
     <string name="import_start">Import</string>
     <string name="count_users">Count users</string>
     <string name="list_users">List users</string>
+    <string name="display_name">Display name</string>
+    <string name="about">About</string>
+    <string name="reputation">Reputation</string>
 </resources>

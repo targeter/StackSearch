@@ -9,18 +9,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import com.lunatech.example.sietse.StackSearch.model.StackSite;
-import com.lunatech.example.sietse.StackSearch.model.User;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
 public class ImporterActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
@@ -35,7 +29,7 @@ public class ImporterActivity extends Activity {
     }
 
     public void listUsers(View view) {
-        startActivity(new Intent(this, ListViewLoader.class));
+        startActivity(new Intent(this, UserActivity.class));
     }
 
     public void countUsers(View view) {

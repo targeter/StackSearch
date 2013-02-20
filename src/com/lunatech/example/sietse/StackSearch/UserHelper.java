@@ -2,9 +2,11 @@ package com.lunatech.example.sietse.StackSearch;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteQueryBuilder;
 import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 import com.lunatech.example.sietse.StackSearch.model.User;
@@ -27,8 +29,8 @@ public class UserHelper extends SQLiteOpenHelper {
                 "id INTEGER, " +
                 "displayName TEXT, " +
                 "about TEXT, " +
-                "reputation INTEGER )," +
-                "PRIMARY KEY (site, id);";
+                "reputation INTEGER, " +
+                "PRIMARY KEY (site, id));";
         db.execSQL(create);
     }
 
@@ -64,5 +66,21 @@ public class UserHelper extends SQLiteOpenHelper {
         final SQLiteDatabase db = getReadableDatabase();
         final SQLiteStatement stmt = db.compileStatement("SELECT COUNT(*) FROM " + TABLE_NAME + ";");
         return stmt.simpleQueryForLong();
+    }
+
+    public Cursor query(String selection, String[] selectionArgs, String[] columns) {
+        final SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
+        builder.setTables(TABLE_NAME);
+
+        final Cursor cursor = builder.query(getReadableDatabase(), columns, selection, selectionArgs, null, null, "displayName");
+
+        if (cursor == null) {
+            return null;
+        } else if (!cursor.moveToFirst()) {
+            cursor.close();
+            return null;
+        }
+
+        return cursor;
     }
 }

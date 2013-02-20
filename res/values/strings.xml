@@ -3,4 +3,5 @@
     <string name="app_name">StackSearch</string>
     <string name="import_start">Import</string>
     <string name="count_users">Count users</string>
+    <string name="list_users">List users</string>
 </resources>

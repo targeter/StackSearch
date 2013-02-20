@@ -2,6 +2,7 @@ package com.lunatech.example.sietse.StackSearch;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -31,6 +32,10 @@ public class ImporterActivity extends Activity {
         ((Button) view).setText("Importing...");
 //        new ImporterTask().execute(StackSite.SERVERFAULT, StackSite.SUPERUSER, StackSite.STACKOVERFLOW);
         new ImporterTask(this).execute(StackSite.SERVERFAULT);
+    }
+
+    public void listUsers(View view) {
+        startActivity(new Intent(this, ListViewLoader.class));
     }
 
     public void countUsers(View view) {

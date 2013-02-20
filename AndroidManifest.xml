@@ -13,5 +13,10 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity android:name=".ListViewLoader"
+            android:label="All users"/>
+
+        <provider android:name=".UserProvider"
+            android:authorities="com.lunatech.example.StackSearch.UserProvider" />
     </application>
 </manifest>

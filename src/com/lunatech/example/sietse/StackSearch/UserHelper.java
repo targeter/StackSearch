@@ -103,14 +103,12 @@ public class UserHelper extends SQLiteOpenHelper {
         final SQLiteDatabase db = getReadableDatabase();
         final Cursor cursor = builder.query(db, columns, selection, selectionArgs, null, null, null);
 
+       Log.wtf("UserListFragment", "before");
         if (cursor == null) {
-            return null;
-        } else if (!cursor.moveToFirst()) {
-            cursor.close();
             return null;
         }
 
-        Log.wtf("query", "foo");
+        Log.wtf("UserListFragment", "after");
 
         return cursor;
     }

@@ -83,7 +83,7 @@ public class UserProvider extends ContentProvider {
     private Cursor searchUsers(String[] args, String[] columns) {
         final String selection = "displayName LIKE ?";
         final String[] selectionArgs;
-        if(args.length > 0) {
+        if(args.length > 0 && args[0] != null) {
             selectionArgs = new String[]{args[0] + "%"};
         } else {
             selectionArgs = new String[]{"%"};

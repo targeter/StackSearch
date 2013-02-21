@@ -17,36 +17,43 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
-public class UserListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class UserListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor>, TextWatcher {
 
     static final String[] PROJECTION = new String[]{"rowid AS _id", "id", "displayName"};
 
     SimpleCursorAdapter mAdapter;
     CursorLoader cursorLoader = null;
 
+   public String currentFilter;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.wtf("UserListFragment", "OnCreate");
-
-        if(savedInstanceState == null) {
-            final String[] fromColumns = {"displayName"};
-            final int[] toViews = {android.R.id.text1};
-
-            mAdapter = new SimpleCursorAdapter(getActivity(),
-                    android.R.layout.simple_list_item_1, null, fromColumns, toViews, 0);
-
-            setListAdapter(mAdapter);
-
-            getLoaderManager().initLoader(0, null, this);
-        }
     }
 
-    @Override
+
+   @Override
+   public void onActivityCreated(Bundle savedInstanceState) {
+      super.onActivityCreated(savedInstanceState);
+      Log.wtf("UserListFragment", "OnActivityCreated");
+
+      final String[] fromColumns = {"displayName"};
+      final int[] toViews = {android.R.id.text1};
+
+      mAdapter = new SimpleCursorAdapter(getActivity(),
+            android.R.layout.simple_list_item_1, null, fromColumns, toViews, 0);
+
+      setListAdapter(mAdapter);
+
+      getLoaderManager().initLoader(0, null, this);
+   }
+
+   @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.wtf("UserListFragment", "OnCreateView");
         final View view = inflater.inflate(R.layout.user_list, container, false);
-        ((EditText)view.findViewById(R.id.filter_box)).addTextChangedListener(filterTextWatcher);
+        ((EditText)view.findViewById(R.id.filter_box)).addTextChangedListener(this);
         return view;
     }
 
@@ -54,6 +61,7 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
     @Override
     public void onStart() {
         super.onStart();
+
         Log.wtf("UserListFragment", "OnStart");
     }
 
@@ -82,7 +90,7 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
        final View view = getView();
 
        if (view != null)
-          ((EditText)view.findViewById(R.id.filter_box)).removeTextChangedListener(filterTextWatcher);
+          ((EditText)view.findViewById(R.id.filter_box)).removeTextChangedListener(this);
     }
 
     @Override
@@ -91,12 +99,6 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
         Log.wtf("UserListFragment", "OnAttach");
     }
 
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        Log.wtf("UserListFragment", "OnActivityCreated");
-    }
 
     @Override
     public void onDestroyView() {
@@ -118,8 +120,8 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        Log.wtf("ULF", "onCreateLoader");
-       this.cursorLoader = new CursorLoader(getActivity(), UserProvider.CONTENT_URI, PROJECTION, "", new String[]{}, null);
+        Log.wtf("UserListFragment", "onCreateLoader");
+       this.cursorLoader = new CursorLoader(getActivity(), UserProvider.CONTENT_URI, PROJECTION, "", new String[]{this.currentFilter}, null);
        return this.cursorLoader;
     }
 
@@ -130,7 +132,7 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        Log.wtf("ULF", "onLoaderReset");
+        Log.wtf("UserListFragment", "onLoaderReset");
         mAdapter.swapCursor(null);
     }
 
@@ -139,34 +141,30 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
-        Log.e("LVL", String.format("Click: %s, %s", position, id));
+        Log.e("UserListFragment", String.format("Click: %s, %s", position, id));
         ((UserActivity)getActivity()).onUserSelected(id);
     }
 
-    private TextWatcher filterTextWatcher = new TextWatcher() {
+   @Override
+   public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+   }
 
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
+   @Override
+   public void onTextChanged(CharSequence s, int start, int before, int count) {
+      Log.wtf("UserListFragment", String.format("filtering on: [%s]", s.toString()));
 
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-           Log.wtf("ULF", String.format("filtering on: [%s]", s.toString()));
+      if (this.currentFilter == null && s == null)
+         return;
 
-           if (cursorLoader != null) {
-              Log.wtf("ULF", "We have a loader");
-              cursorLoader.setSelectionArgs(new String[]{s.toString()});
+      if (this.currentFilter != null && this.currentFilter.equals(s.toString()))
+         return;
 
-              if (cursorLoader.isStarted()) {
-                 Log.wtf("ULF", "The loader is started");
-                 cursorLoader.forceLoad();
-              }
-           }
-        }
+      this.currentFilter = s.toString();
+      getLoaderManager().restartLoader(0, null, this);
+   }
 
-        @Override
-        public void afterTextChanged(Editable s) {
-        }
-    };
+   @Override
+   public void afterTextChanged(Editable s) {
+   }
 
 }

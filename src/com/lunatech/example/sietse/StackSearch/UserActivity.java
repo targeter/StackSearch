@@ -1,10 +1,10 @@
 package com.lunatech.example.sietse.StackSearch;
 
 import android.app.Activity;
+import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
-import android.util.Log;
 import android.view.MenuItem;
 
 public class UserActivity extends Activity {
@@ -16,12 +16,13 @@ public class UserActivity extends Activity {
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
-        if(savedInstanceState == null) {
-            getFragmentManager()
-                    .beginTransaction()
-                    .add(R.id.user_container, new UserListFragment())
-                    .commit();
-        }
+       final FragmentManager fragmentManager = getFragmentManager();
+       if (fragmentManager.findFragmentById(R.id.user_container) == null) {
+          fragmentManager
+                .beginTransaction()
+                .add(R.id.user_container, new UserListFragment())
+                .commit();
+       }
     }
 
     public void onUserSelected(long rowid) {

@@ -3,33 +3,40 @@ package com.lunatech.example.sietse.StackSearch;
 import android.app.Activity;
 import android.app.ListFragment;
 import android.app.LoaderManager;
+import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.SimpleCursorAdapter;
 
-public class UserListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor>, TextWatcher {
+public class UserListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor>, SearchView.OnQueryTextListener {
 
     static final String[] PROJECTION = new String[]{"rowid AS _id", "id", "displayName"};
 
     SimpleCursorAdapter mAdapter;
     CursorLoader cursorLoader = null;
 
+   static final String FILTER = "FILTER";
    public String currentFilter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.wtf("UserListFragment", "OnCreate");
+
+       if (savedInstanceState != null)
+          this.currentFilter = savedInstanceState.getString(FILTER);
     }
 
 
@@ -37,6 +44,8 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
    public void onActivityCreated(Bundle savedInstanceState) {
       super.onActivityCreated(savedInstanceState);
       Log.wtf("UserListFragment", "OnActivityCreated");
+
+      setHasOptionsMenu(true);
 
       final String[] fromColumns = {"displayName"};
       final int[] toViews = {android.R.id.text1};
@@ -49,16 +58,25 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
       getLoaderManager().initLoader(0, null, this);
    }
 
+//   @Override
+//    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+//        Log.wtf("UserListFragment", "OnCreateView");
+//      return inflater.inflate(R.layout.user_list, container, false);
+//    }
+
    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.wtf("UserListFragment", "OnCreateView");
-        final View view = inflater.inflate(R.layout.user_list, container, false);
-        ((EditText)view.findViewById(R.id.filter_box)).addTextChangedListener(this);
-        return view;
-    }
+   public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+      Log.wtf("UserListFragment", "onCreateOptionsMenu");
+      final MenuItem item = menu.add("Search");
+      item.setIcon(android.R.drawable.ic_menu_search);
+      item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+      SearchView sv = new SearchView(getActivity());
+      sv.setOnQueryTextListener(this);
+      sv.setQuery(this.currentFilter, true);
+      item.setActionView(sv);
+   }
 
-
-    @Override
+   @Override
     public void onStart() {
         super.onStart();
 
@@ -86,11 +104,7 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-       final View view = getView();
-
-       if (view != null)
-          ((EditText)view.findViewById(R.id.filter_box)).removeTextChangedListener(this);
+       Log.wtf("UserListFragment", "onDestroy");
     }
 
     @Override
@@ -116,6 +130,8 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         Log.wtf("UserListFragment", "onSaveInstanceState");
+
+       outState.putString(FILTER, this.currentFilter);
     }
 
     @Override
@@ -146,25 +162,24 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
     }
 
    @Override
-   public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+   public boolean onQueryTextSubmit(String query) {
+      final InputMethodManager systemService = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+      systemService.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+      return true;
    }
 
    @Override
-   public void onTextChanged(CharSequence s, int start, int before, int count) {
-      Log.wtf("UserListFragment", String.format("filtering on: [%s]", s.toString()));
+   public boolean onQueryTextChange(String newText) {
+      if (this.currentFilter == null && (newText == null || newText.length() == 0))
+         return true;
 
-      if (this.currentFilter == null && s == null)
-         return;
+      if (this.currentFilter != null && this.currentFilter.equals(newText))
+         return true;
 
-      if (this.currentFilter != null && this.currentFilter.equals(s.toString()))
-         return;
-
-      this.currentFilter = s.toString();
+      Log.wtf("UserListFragment", "Actually filtering");
+      this.currentFilter = newText;
       getLoaderManager().restartLoader(0, null, this);
-   }
 
-   @Override
-   public void afterTextChanged(Editable s) {
+      return true;
    }
-
 }

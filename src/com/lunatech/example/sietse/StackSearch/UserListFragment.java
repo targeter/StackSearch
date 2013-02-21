@@ -3,11 +3,9 @@ package com.lunatech.example.sietse.StackSearch;
 import android.app.Activity;
 import android.app.ListFragment;
 import android.app.LoaderManager;
-import android.content.AsyncTaskLoader;
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteCursor;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -16,15 +14,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.FilterQueryProvider;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
-public class UserListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor>, FilterQueryProvider {
+public class UserListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     static final String[] PROJECTION = new String[]{"rowid AS _id", "id", "displayName"};
 
     SimpleCursorAdapter mAdapter;
+    CursorLoader cursorLoader = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -39,8 +37,6 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
                     android.R.layout.simple_list_item_1, null, fromColumns, toViews, 0);
 
             setListAdapter(mAdapter);
-            mAdapter.setFilterQueryProvider(this);
-
 
             getLoaderManager().initLoader(0, null, this);
         }
@@ -82,7 +78,11 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
     @Override
     public void onDestroy() {
         super.onDestroy();
-        ((EditText)getView().findViewById(R.id.filter_box)).removeTextChangedListener(filterTextWatcher);
+
+       final View view = getView();
+
+       if (view != null)
+          ((EditText)view.findViewById(R.id.filter_box)).removeTextChangedListener(filterTextWatcher);
     }
 
     @Override
@@ -119,12 +119,12 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Log.wtf("ULF", "onCreateLoader");
-        return new CursorLoader(getActivity(), UserProvider.CONTENT_URI, PROJECTION, "", new String[]{}, null);
+       this.cursorLoader = new CursorLoader(getActivity(), UserProvider.CONTENT_URI, PROJECTION, "", new String[]{}, null);
+       return this.cursorLoader;
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        Log.wtf("ULF", "onLoadFinished " + data.hashCode());
         mAdapter.swapCursor(data);
     }
 
@@ -143,16 +143,6 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
         ((UserActivity)getActivity()).onUserSelected(id);
     }
 
-    @Override
-    public Cursor runQuery(CharSequence constraint) {
-        return getActivity().getContentResolver().query(
-                UserProvider.CONTENT_URI,
-                PROJECTION,
-                "",
-                new String[]{constraint.toString()},
-                "displayName");
-    }
-
     private TextWatcher filterTextWatcher = new TextWatcher() {
 
         @Override
@@ -161,7 +151,17 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            mAdapter.getFilter().filter(s);
+           Log.wtf("ULF", String.format("filtering on: [%s]", s.toString()));
+
+           if (cursorLoader != null) {
+              Log.wtf("ULF", "We have a loader");
+              cursorLoader.setSelectionArgs(new String[]{s.toString()});
+
+              if (cursorLoader.isStarted()) {
+                 Log.wtf("ULF", "The loader is started");
+                 cursorLoader.forceLoad();
+              }
+           }
         }
 
         @Override

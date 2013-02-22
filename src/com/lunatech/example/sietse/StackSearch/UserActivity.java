@@ -20,7 +20,7 @@ public class UserActivity extends Activity {
        if (fragmentManager.findFragmentById(R.id.user_container) == null) {
           fragmentManager
                 .beginTransaction()
-                .add(R.id.user_container, new UserListFragment())
+                .add(R.id.user_container, new UserListFragment(), "user-list-fragment")
                 .commit();
        }
     }
@@ -33,7 +33,7 @@ public class UserActivity extends Activity {
         detailFragment.setArguments(bundle);
 
         final FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.user_container, detailFragment);
+        fragmentTransaction.replace(R.id.user_container, detailFragment, "user-detail-fragment");
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }

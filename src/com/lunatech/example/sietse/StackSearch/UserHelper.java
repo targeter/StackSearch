@@ -25,7 +25,7 @@ public class UserHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        final String create = "CREATE TABLE " + TABLE_NAME + " (" +
+        final String create = "CREATE VIRTUAL TABLE " + TABLE_NAME + " USING FTS4 (" +
                 "site TEXT, " +
                 "id INTEGER, " +
                 "displayName TEXT, " +
@@ -101,7 +101,7 @@ public class UserHelper extends SQLiteOpenHelper {
         builder.setTables(TABLE_NAME);
 
         final SQLiteDatabase db = getReadableDatabase();
-        final Cursor cursor = builder.query(db, columns, selection, selectionArgs, null, null, null);
+        final Cursor cursor = builder.query(db, columns, selection, selectionArgs, null, null, "displayName");
 
        Log.wtf("UserListFragment", "before");
         if (cursor == null) {

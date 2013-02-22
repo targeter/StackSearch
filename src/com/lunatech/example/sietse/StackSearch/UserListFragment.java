@@ -9,12 +9,10 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ListView;
 import android.widget.SearchView;
@@ -38,6 +36,7 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
        if (savedInstanceState != null)
           this.currentFilter = savedInstanceState.getString(FILTER);
     }
+
 
 
    @Override
@@ -80,7 +79,8 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
     public void onStart() {
         super.onStart();
 
-        Log.wtf("UserListFragment", "OnStart");
+      getListView().setFastScrollEnabled(true);
+      getListView().setFastScrollAlwaysVisible(true);
     }
 
     @Override

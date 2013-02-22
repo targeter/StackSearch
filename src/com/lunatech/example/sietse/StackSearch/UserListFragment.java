@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
@@ -34,6 +35,8 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
 
        if (savedInstanceState != null)
           this.currentFilter = savedInstanceState.getString(FILTER);
+
+       getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
    @Override
@@ -64,7 +67,6 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
    @Override
     public void onStart() {
         super.onStart();
-
       getListView().setFastScrollEnabled(true);
       getListView().setFastScrollAlwaysVisible(true);
     }
@@ -133,12 +135,16 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+       getActivity().findViewById(R.id.user_list_empty).setVisibility(View.VISIBLE);
+       getActivity().findViewById(R.id.user_list_progressBar).setVisibility(View.GONE);
         mAdapter.swapCursor(data);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         Log.wtf("UserListFragment", "onLoaderReset");
+       getActivity().findViewById(R.id.user_list_empty).setVisibility(View.GONE);
+       getActivity().findViewById(R.id.user_list_progressBar).setVisibility(View.VISIBLE);
         mAdapter.swapCursor(null);
     }
 
@@ -162,7 +168,7 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
          return;
 
       this.currentFilter = s.toString();
-      
+
       if (this.cursorLoader != null) {
          Log.wtf("ULF", "We have a loader");
          this.cursorLoader.setSelectionArgs(new String[]{s.toString()});

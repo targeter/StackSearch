@@ -2,50 +2,61 @@ package com.lunatech.example.sietse.StackSearch;
 
 import android.app.Activity;
 import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
+import android.util.Log;
 import android.view.MenuItem;
 
-public class UserActivity extends Activity {
+public class UserActivity extends Activity implements UserListFragment.Callbacks {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.user_container);
+        setContentView(R.layout.user_list);
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
-
-       final FragmentManager fragmentManager = getFragmentManager();
-       if (fragmentManager.findFragmentById(R.id.user_container) == null) {
-          fragmentManager
-                .beginTransaction()
-                .add(R.id.user_container, new UserListFragment(), "user-list-fragment")
-                .commit();
-       }
     }
 
     public void onUserSelected(long rowid) {
-        final Bundle bundle = new Bundle();
-        bundle.putLong(UserDetailFragment.USER_ID, rowid);
+       final UserDetailFragment detailFragment = getDetailFragment();
 
-        final UserDetailFragment detailFragment = new UserDetailFragment();
-        detailFragment.setArguments(bundle);
-
-        final FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.user_container, detailFragment, "user-detail-fragment");
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
+       if (detailFragment != null)
+          detailFragment.switchUser(rowid);
+       else {
+          final Intent intent = new Intent(this, UserDetailActivity.class);
+          intent.putExtra(UserDetailActivity.USER_ID, rowid);
+          startActivity(intent);
+       }
     }
 
-    @Override
+   private UserDetailFragment getDetailFragment() {
+      return (UserDetailFragment) getFragmentManager().findFragmentById(R.id.user_detail_container);
+   }
+
+   @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
+               final Intent intent = new Intent(this, ImporterActivity.class);
+               intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+               startActivity(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
+
+   @Override
+   protected void onSaveInstanceState(Bundle outState) {
+      super.onSaveInstanceState(outState);
+
+      Log.wtf("UserActivity", "onSaveInstanceState");
+   }
+
+   @Override
+   protected void onDestroy() {
+      super.onDestroy();
+
+      Log.wtf("UserActivity", "onDestroy");
+   }
 }

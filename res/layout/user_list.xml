@@ -1,17 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical"
-    android:layout_width="match_parent" android:layout_height="match_parent">
-
-    <EditText android:id="@+id/filter_box"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:hint="Filter users"
-        android:maxLines="1"/>
-
-    <ListView android:id="@android:id/list"
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"/>
-
-</LinearLayout>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
+    <fragment android:id="@+id/user_list_container"
+              android:name="com.lunatech.example.sietse.StackSearch.UserListFragment"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"/>
+</FrameLayout>

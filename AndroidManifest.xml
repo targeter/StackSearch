@@ -17,6 +17,9 @@
             android:label="All users">
             <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".ImporterActivity"/>
             </activity>
+        <activity android:name=".UserDetailActivity">
+                  <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".UserActivity"/>
+        </activity>
 
         <provider android:name=".UserProvider"
             android:authorities="com.lunatech.example.StackSearch.UserProvider" />

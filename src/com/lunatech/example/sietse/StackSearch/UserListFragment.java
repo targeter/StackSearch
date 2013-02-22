@@ -3,22 +3,21 @@ package com.lunatech.example.sietse.StackSearch;
 import android.app.Activity;
 import android.app.ListFragment;
 import android.app.LoaderManager;
-import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
+import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.SearchView;
 import android.widget.SimpleCursorAdapter;
 
-public class UserListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor>, SearchView.OnQueryTextListener {
+public class UserListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor>, TextWatcher {
 
     static final String[] PROJECTION = new String[]{"rowid AS _id", "id", "displayName"};
 
@@ -37,14 +36,19 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
           this.currentFilter = savedInstanceState.getString(FILTER);
     }
 
+   @Override
+   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
+      final View view = inflater.inflate(R.layout.user_list_fragment, container, false);
+      final EditText filterBox = (EditText)view.findViewById(R.id.filter_box);
+      filterBox.addTextChangedListener(this);
+      return view;
+   }
 
    @Override
    public void onActivityCreated(Bundle savedInstanceState) {
       super.onActivityCreated(savedInstanceState);
       Log.wtf("UserListFragment", "OnActivityCreated");
-
-      setHasOptionsMenu(true);
 
       final String[] fromColumns = {"displayName"};
       final int[] toViews = {android.R.id.text1};
@@ -55,24 +59,6 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
       setListAdapter(mAdapter);
 
       getLoaderManager().initLoader(0, null, this);
-   }
-
-//   @Override
-//    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-//        Log.wtf("UserListFragment", "OnCreateView");
-//      return inflater.inflate(R.layout.user_list, container, false);
-//    }
-
-   @Override
-   public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-      Log.wtf("UserListFragment", "onCreateOptionsMenu");
-      final MenuItem item = menu.add("Search");
-      item.setIcon(android.R.drawable.ic_menu_search);
-      item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-      SearchView sv = new SearchView(getActivity());
-      sv.setOnQueryTextListener(this);
-      sv.setQuery(this.currentFilter, true);
-      item.setActionView(sv);
    }
 
    @Override
@@ -105,6 +91,10 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
     public void onDestroy() {
         super.onDestroy();
        Log.wtf("UserListFragment", "onDestroy");
+
+       final View view = getView();
+       if (view != null)
+          ((EditText)view.findViewById(R.id.filter_box)).removeTextChangedListener(this);
     }
 
     @Override
@@ -152,34 +142,43 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
         mAdapter.swapCursor(null);
     }
 
-
-
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
         Log.e("UserListFragment", String.format("Click: %s, %s", position, id));
-        ((UserActivity)getActivity()).onUserSelected(id);
+        ((Callbacks)getActivity()).onUserSelected(id);
     }
 
    @Override
-   public boolean onQueryTextSubmit(String query) {
-      final InputMethodManager systemService = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-      systemService.hideSoftInputFromWindow(getView().getWindowToken(), 0);
-      return true;
+   public void beforeTextChanged(CharSequence s, int start, int count, int after) {
    }
 
    @Override
-   public boolean onQueryTextChange(String newText) {
-      if (this.currentFilter == null && (newText == null || newText.length() == 0))
-         return true;
+   public void onTextChanged(CharSequence s, int start, int before, int count) {
+      if (this.currentFilter == null && s == null)
+         return;
 
-      if (this.currentFilter != null && this.currentFilter.equals(newText))
-         return true;
+      if (this.currentFilter != null && this.currentFilter.equals(s.toString()))
+         return;
 
-      Log.wtf("UserListFragment", "Actually filtering");
-      this.currentFilter = newText;
-      getLoaderManager().restartLoader(0, null, this);
+      this.currentFilter = s.toString();
+      
+      if (this.cursorLoader != null) {
+         Log.wtf("ULF", "We have a loader");
+         this.cursorLoader.setSelectionArgs(new String[]{s.toString()});
 
-      return true;
+         if (this.cursorLoader.isStarted()) {
+            Log.wtf("ULF", "The loader is started");
+            this.cursorLoader.forceLoad();
+         }
+      }
+   }
+
+   @Override
+   public void afterTextChanged(Editable s) {
+   }
+
+   public interface Callbacks {
+      void onUserSelected(long id);
    }
 }

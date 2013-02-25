@@ -1,6 +1,5 @@
 package com.lunatech.example.sietse.StackSearch;
 
-import android.app.Activity;
 import android.app.ListFragment;
 import android.app.LoaderManager;
 import android.content.CursorLoader;
@@ -20,7 +19,7 @@ import android.widget.SimpleCursorAdapter;
 
 public class UserListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor>, TextWatcher {
 
-    static final String[] PROJECTION = new String[]{"rowid AS _id", "id", "displayName"};
+    static final String[] PROJECTION = new String[]{"rowid AS _id", "id", "displayName", String.format("offsets(%s) as offsets", UserHelper.TABLE_NAME)};
 
     SimpleCursorAdapter mAdapter;
     CursorLoader cursorLoader = null;
@@ -53,11 +52,11 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
       super.onActivityCreated(savedInstanceState);
       Log.wtf("UserListFragment", "OnActivityCreated");
 
-      final String[] fromColumns = {"displayName"};
-      final int[] toViews = {android.R.id.text1};
+      final String[] fromColumns = {"displayName", "score"};
+      final int[] toViews = {android.R.id.text1, android.R.id.text2};
 
       mAdapter = new SimpleCursorAdapter(getActivity(),
-            android.R.layout.simple_list_item_1, null, fromColumns, toViews, 0);
+            android.R.layout.simple_list_item_2, null, fromColumns, toViews, 0);
 
       setListAdapter(mAdapter);
 
@@ -72,24 +71,6 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        Log.wtf("UserListFragment", "OnResume");
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        Log.wtf("UserListFragment", "OnPause");
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        Log.wtf("UserListFragment", "OnStop");
-    }
-
-    @Override
     public void onDestroy() {
         super.onDestroy();
        Log.wtf("UserListFragment", "onDestroy");
@@ -97,25 +78,6 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
        final View view = getView();
        if (view != null)
           ((EditText)view.findViewById(R.id.filter_box)).removeTextChangedListener(this);
-    }
-
-    @Override
-    public void onAttach(Activity act) {
-        super.onAttach(act);
-        Log.wtf("UserListFragment", "OnAttach");
-    }
-
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        Log.wtf("UserListFragment", "OnDestroyView");
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        Log.wtf("UserListFragment", "OnDetach");
     }
 
     @Override

@@ -19,6 +19,18 @@ public class UserHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "StackSearch";
     public static final String TABLE_NAME = "Users";
 
+   public static final int MAX_COL = 4;
+
+   public enum Column {
+      SITE(0), ID(1), DISPLAY_NAME(2), ABOUT(3), REPUTATION(4);
+
+      public final int index;
+
+      private Column(final int index) {
+         this.index = index;
+      }
+   }
+
     public UserHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }

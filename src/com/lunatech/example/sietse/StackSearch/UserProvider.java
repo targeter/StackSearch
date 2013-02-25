@@ -6,7 +6,10 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.CursorWrapper;
 import android.net.Uri;
+
+import java.util.Arrays;
 
 public class UserProvider extends ContentProvider {
 
@@ -81,15 +84,100 @@ public class UserProvider extends ContentProvider {
     }
 
     private Cursor searchUsers(String[] args, String[] columns) {
-        final String selection = "displayName LIKE ?";
+        final String selection;
         final String[] selectionArgs;
-        if(args.length > 0 && args[0] != null) {
-            selectionArgs = new String[]{args[0] + "%"};
+        if(args.length > 0 && args[0] != null && args[0].length() > 0) {
+           selection = UserHelper.TABLE_NAME + " MATCH ?";
+           selectionArgs = new String[] { String.format("about:%s OR displayName:%1$s", args[0]) };
         } else {
-            selectionArgs = new String[]{"%"};
+           selection = null;
+           selectionArgs = new String[] {};
         }
 
-        return helper.query(selection, selectionArgs, columns);
+       final Cursor cursor = helper.query(selection, selectionArgs, columns);
+       return new ScoringCursor(cursor);
     }
 
+   private class ScoringCursor extends CursorWrapper {
+      private String[] columnNamesCache;
+
+      /**
+       * Creates a cursor wrapper.
+       *
+       * @param cursor The underlying cursor to wrap.
+       */
+      public ScoringCursor(Cursor cursor) {
+         super(cursor);
+      }
+
+      @Override
+      public int getColumnCount() {
+         return super.getColumnCount() + 1;
+      }
+
+      @Override
+      public String[] getColumnNames() {
+         if (this.columnNamesCache == null) {
+            this.columnNamesCache = Arrays.copyOf(super.getColumnNames(), getColumnCount());
+            this.columnNamesCache[getColumnCount() - 1] = "score";
+         }
+
+         return this.columnNamesCache;
+      }
+
+      @Override
+      public int getColumnIndex(String columnName) {
+         if ("score".equals(columnName))
+            return getColumnCount() - 1;
+
+         return super.getColumnIndex(columnName);
+      }
+
+      @Override
+      public int getColumnIndexOrThrow(String columnName) throws IllegalArgumentException {
+         final int columnIndex = getColumnIndex(columnName);
+
+         if (columnIndex == -1)
+            throw new IllegalArgumentException(String.format("column '%s' does not exist", columnName));
+
+         return columnIndex;
+      }
+
+      @Override
+      public String getColumnName(int columnIndex) {
+         if (columnIndex == getColumnCount() - 1)
+            return "score";
+
+         return super.getColumnName(columnIndex);
+      }
+
+      @Override
+      public String getString(int columnIndex) {
+         if (columnIndex == getColumnCount() - 1) {
+            final int offsetsIndex = getColumnIndex("offsets");
+
+            final String offsets = super.getString(offsetsIndex);
+
+            if ("".equals(offsets)) return "0";
+
+            final String[] split = offsets.split("\\s+");
+            final int[] count = new int[UserHelper.MAX_COL];
+
+            for (int i = 0; i < split.length; i += 4)
+               count[Integer.parseInt(split[i])]++;
+
+            return String.format("%d", count[UserHelper.Column.DISPLAY_NAME.index] * 100 + count[UserHelper.Column.ABOUT.index] * 20);
+         }
+
+         return super.getString(columnIndex);
+      }
+
+      @Override
+      public boolean isNull(int columnIndex) {
+         if (columnIndex == getColumnCount() - 1)
+            return false;
+
+         return super.isNull(columnIndex);
+      }
+   }
 }

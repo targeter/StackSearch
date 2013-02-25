@@ -37,9 +37,7 @@ public class UserActivity extends Activity implements UserListFragment.Callbacks
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-               final Intent intent = new Intent(this, ImporterActivity.class);
-               intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-               startActivity(intent);
+               finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

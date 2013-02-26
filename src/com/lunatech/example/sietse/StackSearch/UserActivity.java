@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 
 public class UserActivity extends Activity implements UserListFragment.Callbacks {
     @Override
@@ -20,7 +21,7 @@ public class UserActivity extends Activity implements UserListFragment.Callbacks
     public void onUserSelected(long rowid) {
        final UserDetailFragment detailFragment = getDetailFragment();
 
-       if (detailFragment != null)
+       if (detailFragment != null && detailFragment.isResumed())
           detailFragment.switchUser(rowid);
        else {
           final Intent intent = new Intent(this, UserDetailActivity.class);

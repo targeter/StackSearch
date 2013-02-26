@@ -166,10 +166,32 @@ public class UserProvider extends ContentProvider {
             for (int i = 0; i < split.length; i += 4)
                count[Integer.parseInt(split[i])]++;
 
-            return String.format("%d", count[UserHelper.Column.DISPLAY_NAME.index] * 100 + count[UserHelper.Column.ABOUT.index] * 20);
+            return String.format("%d (%s)", count[UserHelper.Column.DISPLAY_NAME.index] * 100 + count[UserHelper.Column.ABOUT.index] * 20, offsets);
          }
 
          return super.getString(columnIndex);
+      }
+
+
+      @Override
+      public int getInt(int columnIndex) {
+         if (columnIndex == getColumnCount() - 1) {
+            final int offsetsIndex = getColumnIndex("offsets");
+
+            final String offsets = super.getString(offsetsIndex);
+
+            if ("".equals(offsets)) return 0;
+
+            final String[] split = offsets.split("\\s+");
+            final int[] count = new int[UserHelper.MAX_COL];
+
+            for (int i = 0; i < split.length; i += 4)
+               count[Integer.parseInt(split[i])]++;
+
+            return count[UserHelper.Column.DISPLAY_NAME.index] * 100 + count[UserHelper.Column.ABOUT.index] * 20;
+         }
+
+         return super.getInt(columnIndex);
       }
 
       @Override

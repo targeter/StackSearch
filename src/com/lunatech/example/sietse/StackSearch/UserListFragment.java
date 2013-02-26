@@ -127,7 +127,7 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
         Log.e("UserListFragment", String.format("Click: %s, %s", position, id));
-        ((Callbacks)getActivity()).onUserSelected(id);
+        ((Callbacks)getActivity()).onUserSelected(position, id);
     }
 
    @Override
@@ -160,7 +160,9 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
    }
 
    public interface Callbacks {
-      void onUserSelected(long id);
+      void onUserSelected(int position, long rowid);
+
+       void onUserListChanged();
    }
 
    private class ScoringAdapter extends SimpleCursorAdapter {
@@ -175,6 +177,7 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
       @Override
       public Cursor swapCursor(Cursor c) {
          initMap(c);
+          ((Callbacks)getActivity()).onUserListChanged();
          return super.swapCursor(c);
       }
 

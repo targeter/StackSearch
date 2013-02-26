@@ -169,7 +169,7 @@ public class UserProvider extends ContentProvider {
             return String.format("%d (%s)", count[UserHelper.Column.DISPLAY_NAME.index] * 100 + count[UserHelper.Column.ABOUT.index] * 20, offsets);
          }
 
-         return super.getString(columnIndex);
+         return String.format("%s, %s, %d", super.getString(columnIndex), super.getString(0), getPosition());
       }
 
 

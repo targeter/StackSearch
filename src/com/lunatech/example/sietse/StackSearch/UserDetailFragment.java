@@ -17,6 +17,12 @@ public class UserDetailFragment extends Fragment {
     private long userId;
     private UserHelper helper;
 
+    public UserDetailFragment(){}
+
+    public UserDetailFragment(long userId) {
+        this.userId = userId;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,14 +39,40 @@ public class UserDetailFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        return inflater.inflate(R.layout.user_detail_fragment, container, false);
+        Log.wtf("UserDetailFragment", "onCreateView");
+        final View view = inflater.inflate(R.layout.user_detail_fragment, container, false);
+
+        if (userId == 0) {
+            view.findViewById(R.id.user_detail_view).setVisibility(View.GONE);
+            view.findViewById(R.id.user_detail_layout_empty).setVisibility(View.VISIBLE);
+            view.findViewById(R.id.user_detail_layout_notfound).setVisibility(View.GONE);
+        } else {
+            view.findViewById(R.id.user_detail_layout_empty).setVisibility(View.GONE);
+
+            final User user = helper.findUserByRowid(userId);
+            if(user == null) {
+                Log.e("UserDetailFragment", "User at rowid " + userId + " not found!");
+                view.findViewById(R.id.user_detail_view).setVisibility(View.GONE);
+                view.findViewById(R.id.user_detail_layout_notfound).setVisibility(View.VISIBLE);
+            } else {
+                ((WebView)view.findViewById(R.id.about_value)).loadData(user.about, "text/html", "utf-8");
+                ((TextView)view.findViewById(R.id.displayName_value)).setText(user.displayName);
+                ((TextView)view.findViewById(R.id.reputation_value)).setText(user.reputation.toString());
+
+                view.findViewById(R.id.user_detail_view).setVisibility(View.VISIBLE);
+                view.findViewById(R.id.user_detail_layout_notfound).setVisibility(View.GONE);
+            }
+        }
+
+        return view;
     }
 
     @Override
     public void onStart() {
         super.onStart();
+        Log.wtf("UserDetailFragment", "onStart, userId: " + userId);
 
-       switchUser(this.userId);
+
     }
 
     @Override
@@ -49,30 +81,37 @@ public class UserDetailFragment extends Fragment {
         outState.putLong(USER_ID, userId);
     }
 
-   public void switchUser(long id) {
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.wtf("UserDetailFragement", "onResume " + userId);
+
+//        if (userId == 0) {
+//            getActivity().findViewById(R.id.user_detail_view).setVisibility(View.GONE);
+//            getActivity().findViewById(R.id.user_detail_layout_empty).setVisibility(View.VISIBLE);
+//            getActivity().findViewById(R.id.user_detail_layout_notfound).setVisibility(View.GONE);
+//        } else {
+//            getActivity().findViewById(R.id.user_detail_layout_empty).setVisibility(View.GONE);
+//
+//            final User user = helper.findUserByRowid(userId);
+//            if(user == null) {
+//                Log.e("UserDetailFragment", "User at rowid " + userId + " not found!");
+//                getActivity().findViewById(R.id.user_detail_view).setVisibility(View.GONE);
+//                getActivity().findViewById(R.id.user_detail_layout_notfound).setVisibility(View.VISIBLE);
+//            } else {
+//                ((WebView)getActivity().findViewById(R.id.about_value)).loadData(user.about, "text/html", "utf-8");
+//                ((TextView)getActivity().findViewById(R.id.displayName_value)).setText(user.displayName);
+//                ((TextView)getActivity().findViewById(R.id.reputation_value)).setText(user.reputation.toString());
+//
+//                getActivity().findViewById(R.id.user_detail_view).setVisibility(View.VISIBLE);
+//                getActivity().findViewById(R.id.user_detail_layout_notfound).setVisibility(View.GONE);
+//            }
+//        }
+
+    }
+
+    public void switchUser(long id) {
       this.userId = id;
-
-      if (id == 0) {
-         getActivity().findViewById(R.id.user_detail_view).setVisibility(View.GONE);
-         getActivity().findViewById(R.id.user_detail_layout_empty).setVisibility(View.VISIBLE);
-         getActivity().findViewById(R.id.user_detail_layout_notfound).setVisibility(View.GONE);
-      } else {
-         getActivity().findViewById(R.id.user_detail_layout_empty).setVisibility(View.GONE);
-
-         final User user = helper.findUserByRowid(userId);
-         if(user == null) {
-            Log.e("UserDetailFragment", "User at rowid " + userId + " not found!");
-            getActivity().findViewById(R.id.user_detail_view).setVisibility(View.GONE);
-            getActivity().findViewById(R.id.user_detail_layout_notfound).setVisibility(View.VISIBLE);
-         } else {
-            ((WebView)getActivity().findViewById(R.id.about_value)).loadData(user.about, "text/html", "utf-8");
-            ((TextView)getActivity().findViewById(R.id.displayName_value)).setText(user.displayName);
-            ((TextView)getActivity().findViewById(R.id.reputation_value)).setText(user.reputation.toString());
-
-            getActivity().findViewById(R.id.user_detail_view).setVisibility(View.VISIBLE);
-            getActivity().findViewById(R.id.user_detail_layout_notfound).setVisibility(View.GONE);
-         }
-      }
    }
 
    public void switchUserIfNone(long itemId) {

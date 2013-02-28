@@ -95,7 +95,8 @@ public class UserProvider extends ContentProvider {
         }
 
        final Cursor cursor = helper.query(selection, selectionArgs, columns);
-       return new ScoringCursor(cursor);
+        return cursor;
+//      return new ScoringCursor(cursor);
     }
 
    private class ScoringCursor extends CursorWrapper {

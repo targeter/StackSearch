@@ -45,7 +45,20 @@ public class UserHelper extends SQLiteOpenHelper {
                 "reputation INTEGER, " +
                 "PRIMARY KEY (site, id));";
         db.execSQL(create);
+        int result = attachVINDRank(getReadableDatabase());
+        if (result > 0) {
+            Log.wtf(this.getClass().getSimpleName(), "Attaching VINDRank function fail with status: "+result);
+        } else {
+            Log.wtf(this.getClass().getSimpleName(), "Attaching VINDRank function succeeded!");
+        }
+
     }
+
+    /* load our native library */
+    static {
+        System.loadLibrary("VINDRank");
+    }
+    public native int attachVINDRank(SQLiteDatabase db);
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -113,7 +126,7 @@ public class UserHelper extends SQLiteOpenHelper {
         builder.setTables(TABLE_NAME);
 
         final SQLiteDatabase db = getReadableDatabase();
-        final Cursor cursor = builder.query(db, columns, selection, selectionArgs, null, null, "displayName");
+        final Cursor cursor = builder.query(db, columns, selection, selectionArgs, null, null, "rank");
 
        Log.wtf("UserListFragment", "before");
         if (cursor == null) {

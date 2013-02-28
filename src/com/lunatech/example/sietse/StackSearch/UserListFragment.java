@@ -21,6 +21,7 @@ import android.widget.ListView;
 public class UserListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor>, TextWatcher {
 
     static final String[] PROJECTION = new String[]{"rowid AS _id", "id", "displayName"};
+//    static final String[] PROJECTION = new String[]{"rowid AS _id", "id", "displayName", String.format("VINDRank(offsets(%s)) as rank", UserHelper.TABLE_NAME)};
 
     CursorAdapter mAdapter;
     CursorLoader cursorLoader = null;
@@ -58,6 +59,8 @@ public class UserListFragment extends ListFragment implements LoaderManager.Load
 
 //      mAdapter = new ScoringAdapter(getActivity(),
 //            android.R.layout.simple_list_item_2, null, fromColumns, toViews, 0);
+      mAdapter = new SimpleCursorAdapter(getActivity(),
+            android.R.layout.simple_list_item_2, null, fromColumns, toViews, 0);
 //      this.mAdapter = new ScoringAdapter(getActivity());
       mAdapter = new SimpleCursorAdapter(getActivity(),
             android.R.layout.simple_list_item_2, null, fromColumns, toViews, 0);

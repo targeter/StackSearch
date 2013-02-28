@@ -61,7 +61,7 @@ public class UserParser {
 
             count++;
 
-            if(count == 500 ){
+            if(entries.size() == 500 ){
                 helper.saveUsers(entries);
                 entries.clear();
             }

@@ -37,7 +37,7 @@ public class UserHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        final String create = "CREATE VIRTUAL TABLE " + TABLE_NAME + " USING FTS4 (" +
+        final String create = "CREATE VIRTUAL TABLE " + TABLE_NAME + " USING FTS3 (" +
                 "site TEXT, " +
                 "id INTEGER, " +
                 "displayName TEXT, " +

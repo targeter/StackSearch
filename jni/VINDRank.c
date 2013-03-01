@@ -39,7 +39,9 @@ void VINDRank(sqlite3_context *context, int argc, sqlite3_value **argv)
     sqlite3_result_int(context, weight);
 }
 
-int attachVINDRank(sqlite3 *db)
+JNIEXPORT jint JNICALL Java_com_lunatech_example_sietse_StackSearch_VINDRank_attachVINDRank
+  (JNIEnv * jniEnv, jobject jobj, jlong db)
 {
     return sqlite3_create_function(db, "VINDRank", 1, 1, 0x00, &VINDRank, 0x00, 0x00);
 }
+

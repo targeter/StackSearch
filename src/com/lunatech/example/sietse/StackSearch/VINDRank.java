@@ -10,5 +10,5 @@ import android.database.sqlite.SQLiteDatabase;
  * To change this template use File | Settings | File Templates.
  */
 public class VINDRank {
-    public native int attachVINDRank(SQLiteDatabase db);
+    public native int attachVINDRank(long db);
 }

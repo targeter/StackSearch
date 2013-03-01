@@ -9,9 +9,13 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
+import com.almworks.sqlite4java.Nasty;
+import com.almworks.sqlite4java.SQLiteConnection;
+import com.almworks.sqlite4java.SQLiteException;
 import com.lunatech.example.sietse.StackSearch.model.StackSite;
 import com.lunatech.example.sietse.StackSearch.model.User;
 
+import java.io.File;
 import java.util.Set;
 
 public class UserHelper extends SQLiteOpenHelper {
@@ -20,6 +24,8 @@ public class UserHelper extends SQLiteOpenHelper {
     public static final String TABLE_NAME = "Users";
 
    public static final int MAX_COL = 4;
+
+   private final Context context;
 
    public enum Column {
       SITE(0), ID(1), DISPLAY_NAME(2), ABOUT(3), REPUTATION(4);
@@ -33,6 +39,8 @@ public class UserHelper extends SQLiteOpenHelper {
 
     public UserHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+
+        this.context = context;
     }
 
     @Override
@@ -45,21 +53,43 @@ public class UserHelper extends SQLiteOpenHelper {
                 "reputation INTEGER, " +
                 "PRIMARY KEY (site, id));";
         db.execSQL(create);
-//        int result = attachVINDRank(getReadableDatabase());
-//        if (result > 0) {
-//            Log.wtf(this.getClass().getSimpleName(), "Attaching VINDRank function fail with status: "+result);
-//        } else {
-//            Log.wtf(this.getClass().getSimpleName(), "Attaching VINDRank function succeeded!");
-//        }
-
     }
 
-    /* load our native library */
+   @Override
+   public SQLiteDatabase getReadableDatabase() {
+      return super.getReadableDatabase();
+   }
+
+   @Override
+   public SQLiteDatabase getWritableDatabase() {
+      return super.getWritableDatabase();
+   }
+
+   /* load our native library */
     static {
-        System.loadLibrary("VINDRank");
+       System.loadLibrary("sqlite4java-android-armv7");
+       System.loadLibrary("VINDRank");
     }
-    public native int attachVINDRank(SQLiteDatabase db);
 
+    public int testCreateFunction() {
+
+       final SQLiteConnection connection = new SQLiteConnection(new File(this.context.getFilesDir(), "foo.sqlite"));
+       try {
+          connection.open();
+       } catch (SQLiteException e) {
+          Log.e("UserHelper", "Failed to open database", e);
+       }
+
+       final VINDRank vindRank = new VINDRank();
+       int result = vindRank.attachVINDRank(Nasty.getDbPointer(connection));
+       if (result > 0) {
+          Log.wtf("UserHelper", "Attaching VINDRank function fail with status: "+result);
+       } else {
+          Log.wtf("UserHelper", "Attaching VINDRank function succeeded!");
+       }
+
+       return result;
+    }
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // This method implementation intentionally left blank
@@ -126,7 +156,7 @@ public class UserHelper extends SQLiteOpenHelper {
         builder.setTables(TABLE_NAME);
 
         final SQLiteDatabase db = getReadableDatabase();
-        final Cursor cursor = builder.query(db, columns, selection, selectionArgs, null, null, "rank");
+        final Cursor cursor = builder.query(db, columns, selection, selectionArgs, null, null, null);
 
        Log.wtf("UserListFragment", "before");
         if (cursor == null) {

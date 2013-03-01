@@ -39,6 +39,11 @@ public class ImporterActivity extends Activity {
 
     }
 
+    public void testCreateFunction(View view) {
+       final UserHelper userHelper = new UserHelper(this);
+       final int result = userHelper.testCreateFunction();
+       ((Button)view).setText(String.format("Got result: %d (%s)", result, result == 0 ? "success" : "failure"));
+    }
     private class ImporterTask extends AsyncTask<StackSite, Void, Integer> {
         private static final String TAG = "ImporterTask";
         private final Context ctx;

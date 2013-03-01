@@ -45,12 +45,12 @@ public class UserHelper extends SQLiteOpenHelper {
                 "reputation INTEGER, " +
                 "PRIMARY KEY (site, id));";
         db.execSQL(create);
-        int result = attachVINDRank(getReadableDatabase());
-        if (result > 0) {
-            Log.wtf(this.getClass().getSimpleName(), "Attaching VINDRank function fail with status: "+result);
-        } else {
-            Log.wtf(this.getClass().getSimpleName(), "Attaching VINDRank function succeeded!");
-        }
+//        int result = attachVINDRank(getReadableDatabase());
+//        if (result > 0) {
+//            Log.wtf(this.getClass().getSimpleName(), "Attaching VINDRank function fail with status: "+result);
+//        } else {
+//            Log.wtf(this.getClass().getSimpleName(), "Attaching VINDRank function succeeded!");
+//        }
 
     }
 
